@@ -14,22 +14,31 @@ try {
 
 // Handle form submission for adding or editing a course
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Fetch dep_id based on dept_name
+    $deptStmt = $pdo->prepare("SELECT dep_id FROM department WHERE dept_name = ?");
+    $deptStmt->execute([$_POST['dept_name']]);
+    $department = $deptStmt->fetch(PDO::FETCH_ASSOC);
+    $dep_id = $department ? $department['dep_id'] : null; // Get dep_id
+
     if (isset($_POST['course_id']) && $_POST['course_id'] != '') {
         // Update existing course
-        $stmt = $pdo->prepare("UPDATE course SET title=?, credits=?, dept_name=? WHERE course_id=?");
+        $stmt = $pdo->prepare("UPDATE course SET title=?, credits=?, dept_name=?, dep_id=? WHERE course_id=?");
         $stmt->execute([
             $_POST['title'],
             $_POST['credits'],
-            $_POST['dept_name'],
+            $_POST['dept_name'],  // Keep dept_name
+            $dep_id,             // Update dep_id from department
             $_POST['course_id']
         ]);
+        
     } else {
         // Add new course
-        $stmt = $pdo->prepare("INSERT INTO course (title, credits, dept_name) VALUES (?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO course (title, credits, dept_name, dep_id) VALUES (?, ?, ?, ?)");
         $stmt->execute([
             $_POST['title'],
             $_POST['credits'],
-            $_POST['dept_name']
+            $_POST['dept_name'],  // Keep dept_name
+            $dep_id               // Add dep_id to reference department
         ]);
     }
     // Redirect back to the same page after form submission
@@ -206,7 +215,7 @@ $departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
         <input type="number" id="credits" name="credits" value="<?php echo $courseToEdit ? htmlspecialchars($courseToEdit['credits']) : ''; ?>" required>
 
         <label for="dept_name">Department Name:</label>
-        <select id="dept_name" name="dept_name">
+        <select id="dept_name" name="dept_name" required>
             <option value="">Select Department</option>
             <?php foreach ($departments as $department): ?>
                 <option value="<?php echo htmlspecialchars($department['dept_name']); ?>" <?php echo $courseToEdit && $courseToEdit['dept_name'] == $department['dept_name'] ? 'selected' : ''; ?>>

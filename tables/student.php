@@ -16,24 +16,26 @@ try {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['ID']) && $_POST['ID'] != '') {
         // Update existing student
-        $stmt = $pdo->prepare("UPDATE student SET first_name=?, middle_name=?, last_name=?, tot_cred=?, dept_name=? WHERE ID=?");
+        $stmt = $pdo->prepare("UPDATE student SET first_name=?, middle_name=?, last_name=?, tot_cred=?, dept_name=?, dep_id=? WHERE ID=?");
         $stmt->execute([
             $_POST['first_name'],
             $_POST['middle_name'],
             $_POST['last_name'],
             $_POST['tot_cred'],
             $_POST['dept_name'],
+            $_POST['dep_id'], // Added dep_id to the update query
             $_POST['ID']
         ]);
     } else {
         // Add new student
-        $stmt = $pdo->prepare("INSERT INTO student (first_name, middle_name, last_name, tot_cred, dept_name) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO student (first_name, middle_name, last_name, tot_cred, dept_name, dep_id) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $_POST['first_name'],
             $_POST['middle_name'],
             $_POST['last_name'],
             $_POST['tot_cred'],
-            $_POST['dept_name']
+            $_POST['dept_name'],
+            $_POST['dep_id'] // Added dep_id to the insert query
         ]);
     }
     // Redirect back to the same page after form submission
@@ -62,9 +64,10 @@ if (isset($_GET['edit'])) {
 }
 
 // Fetch all departments for the dropdown
-$deptStmt = $pdo->query("SELECT dept_name FROM department");
+$deptStmt = $pdo->query("SELECT dept_name, dep_id FROM department"); // Fetch dep_id along with dept_name
 $departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -200,7 +203,7 @@ $departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
         <h2><?php echo $studentToEdit ? 'Edit Student' : 'Add Student'; ?></h2>
         
         <?php if ($studentToEdit): ?>
-            <input type="hidden" name="id" value="<?php echo htmlspecialchars($studentToEdit['ID']); ?>">
+            <input type="hidden" name="ID" value="<?php echo htmlspecialchars($studentToEdit['ID']); ?>">
         <?php endif; ?>
 
         <label for="first_name">First Name:</label>
@@ -216,14 +219,15 @@ $departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
         <input type="number" id="tot_cred" name="tot_cred" value="<?php echo $studentToEdit ? htmlspecialchars($studentToEdit['tot_cred']) : ''; ?>" required>
 
         <label for="dept_name">Department Name:</label>
-        <select id="dept_name" name="dept_name">
+        <select id="dept_name" name="dept_name" onchange="updateDepId()">
             <option value="">Select Department</option>
             <?php foreach ($departments as $department): ?>
-                <option value="<?php echo htmlspecialchars($department['dept_name']); ?>" <?php echo $studentToEdit && $studentToEdit['dept_name'] == $department['dept_name'] ? 'selected' : ''; ?>>
+                <option value="<?php echo htmlspecialchars($department['dept_name']); ?>" <?php echo $studentToEdit && $studentToEdit['dept_name'] == $department['dept_name'] ? 'selected' : ''; ?> data-dep-id="<?php echo htmlspecialchars($department['dep_id']); ?>">
                     <?php echo htmlspecialchars($department['dept_name']); ?>
                 </option>
             <?php endforeach; ?>
         </select>
+        <input type="hidden" name="dep_id" id="dep_id" value="<?php echo $studentToEdit ? htmlspecialchars($studentToEdit['dep_id']) : ''; ?>">
 
         <button type="submit"><?php echo $studentToEdit ? 'Update Student' : 'Add Student'; ?></button>
     </form>
@@ -259,6 +263,15 @@ $departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
 
     </table>
 </div>
+
+<script>
+    function updateDepId() {
+        const select = document.getElementById('dept_name');
+        const selectedOption = select.options[select.selectedIndex];
+        const depIdInput = document.getElementById('dep_id');
+        depIdInput.value = selectedOption.getAttribute('data-dep-id');
+    }
+</script>
 
 </body>
 </html>

@@ -96,7 +96,7 @@
             <li><a href="tables/department.php">Manage Departments</a></li>
             <li><a href="tables/course.php">Manage Courses</a></li>
             <li><a href="tables/classroom.php">Manage Classrooms</a></li>
-            <li><a href="section.php">Manage Sections</a></li>
+            <li><a href="tables/section.php">Manage Sections</a></li>
             <li><a href="timeslot.php">Manage Time Slots</a></li>
             <li><a href="tables/student.php">Manage Students</a></li>
         </ul>
