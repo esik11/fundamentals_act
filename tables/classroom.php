@@ -12,6 +12,10 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
+// Fetch all buildings from the department table
+$stmt = $pdo->query("SELECT DISTINCT building FROM department");
+$buildings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Handle form submission for adding or editing a classroom
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['classroom_id']) && $_POST['classroom_id'] != '') {
@@ -106,7 +110,7 @@ if (isset($_GET['edit'])) {
             color: #555;
         }
 
-        input, button {
+        input, button, select {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -125,6 +129,13 @@ if (isset($_GET['edit'])) {
 
         button:hover {
             background-color: #218838;
+        }
+
+        select {
+            background-color: #fff;
+            color: #333;
+            padding: 10px;
+            font-size: 1rem;
         }
 
         table {
@@ -196,7 +207,15 @@ if (isset($_GET['edit'])) {
         <?php endif; ?>
 
         <label for="building">Building:</label>
-        <input type="text" id="building" name="building" value="<?php echo $classroomToEdit ? htmlspecialchars($classroomToEdit['building']) : ''; ?>" required>
+        <select id="building" name="building" required>
+            <option value="">Select Building</option>
+            <?php foreach ($buildings as $building): ?>
+                <option value="<?php echo htmlspecialchars($building['building']); ?>"
+                    <?php echo $classroomToEdit && $classroomToEdit['building'] === $building['building'] ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($building['building']); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
 
         <label for="room_number">Room Number:</label>
         <input type="text" id="room_number" name="room_number" value="<?php echo $classroomToEdit ? htmlspecialchars($classroomToEdit['room_number']) : ''; ?>" required>

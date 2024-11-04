@@ -14,23 +14,19 @@ try {
 
 // Handle form submission for adding or editing a department
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Handle nullable fields by assigning NULL if empty
+    $dept_name = $_POST['dept_name'];
+    $building = !empty($_POST['building']) ? $_POST['building'] : null;
+    $budget = !empty($_POST['budget']) ? $_POST['budget'] : null;
+
     if (isset($_POST['dep_id']) && $_POST['dep_id'] != '') {
         // Update existing department
         $stmt = $pdo->prepare("UPDATE department SET dept_name=?, building=?, budget=? WHERE dep_id=?");
-        $stmt->execute([
-            $_POST['dept_name'],
-            $_POST['building'],
-            $_POST['budget'],
-            $_POST['dep_id']
-        ]);
+        $stmt->execute([$dept_name, $building, $budget, $_POST['dep_id']]);
     } else {
         // Add new department
         $stmt = $pdo->prepare("INSERT INTO department (dept_name, building, budget) VALUES (?, ?, ?)");
-        $stmt->execute([
-            $_POST['dept_name'],
-            $_POST['building'],
-            $_POST['budget']
-        ]);
+        $stmt->execute([$dept_name, $building, $budget]);
     }
     // Redirect back to the same page after form submission
     header("Location: department.php");
@@ -199,10 +195,10 @@ if (isset($_GET['edit'])) {
         <input type="text" id="dept_name" name="dept_name" value="<?php echo $departmentToEdit ? htmlspecialchars($departmentToEdit['dept_name']) : ''; ?>" required>
 
         <label for="building">Building:</label>
-        <input type="text" id="building" name="building" value="<?php echo $departmentToEdit ? htmlspecialchars($departmentToEdit['building']) : ''; ?>" required>
+        <input type="text" id="building" name="building" value="<?php echo $departmentToEdit ? htmlspecialchars($departmentToEdit['building']) : ''; ?>" >
 
         <label for="budget">Budget:</label>
-        <input type="number" id="budget" name="budget" value="<?php echo $departmentToEdit ? htmlspecialchars($departmentToEdit['budget']) : ''; ?>" required>
+        <input type="number" id="budget" name="budget" value="<?php echo $departmentToEdit ? htmlspecialchars($departmentToEdit['budget']) : ''; ?>" >
 
         <button type="submit"><?php echo $departmentToEdit ? 'Update Department' : 'Add Department'; ?></button>
     </form>

@@ -13,6 +13,7 @@ try {
 }
 
 // Handle form submission for adding or editing an instructor
+// Handle form submission for adding or editing an instructor
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $first_name = $_POST['first_name'];
     $middle_name = $_POST['middle_name'] ?? ''; // Handle optional middle name
@@ -24,8 +25,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $state = $_POST['state'] ?? '';
     $postal_code = $_POST['postal_code'] ?? '';
     $date_of_birth = $_POST['date_of_birth'];
-    $salary = $_POST['salary'];
-    $dept_name = $_POST['dept_name'];
+    $salary = $_POST['salary'] !== '' ? $_POST['salary'] : null; // Set to NULL if empty
+    $dept_name = $_POST['dept_name'] !== '' ? $_POST['dept_name'] : null; // Set to NULL if empty
 
     if (isset($_POST['id']) && $_POST['id'] != '') {
         // Update existing instructor
@@ -67,6 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
+
 
 // Handle deletion of an instructor
 if (isset($_GET['delete'])) {
@@ -261,10 +263,10 @@ $departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
         <input type="date" id="date_of_birth" name="date_of_birth" value="<?php echo $instructorToEdit ? htmlspecialchars($instructorToEdit['date_of_birth']) : ''; ?>" required>
 
         <label for="salary">Salary:</label>
-        <input type="number" id="salary" name="salary" value="<?php echo $instructorToEdit ? htmlspecialchars($instructorToEdit['salary']) : ''; ?>" required>
+        <input type="number" id="salary" name="salary" value="<?php echo $instructorToEdit ? htmlspecialchars($instructorToEdit['salary']) : ''; ?>" >
 
         <label for="dept_name">Department:</label>
-        <select id="dept_name" name="dept_name" required>
+        <select id="dept_name" name="dept_name" >
             <option value="">--Select Department--</option>
             <?php foreach ($departments as $department): ?>
                 <option value="<?php echo htmlspecialchars($department['dept_name']); ?>" <?php echo $instructorToEdit && $instructorToEdit['dept_name'] === $department['dept_name'] ? 'selected' : ''; ?>>

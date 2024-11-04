@@ -14,35 +14,26 @@ try {
 
 // Handle form submission for adding or editing a student
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $first_name = $_POST['first_name'];
+    $middle_name = $_POST['middle_name'] ?? null;
+    $last_name = $_POST['last_name'];
+    $tot_cred = !empty($_POST['tot_cred']) ? $_POST['tot_cred'] : null;
+    $dept_name = !empty($_POST['dept_name']) ? $_POST['dept_name'] : null;
+    $dep_id = !empty($_POST['dep_id']) ? $_POST['dep_id'] : null;
+
     if (isset($_POST['ID']) && $_POST['ID'] != '') {
         // Update existing student
         $stmt = $pdo->prepare("UPDATE student SET first_name=?, middle_name=?, last_name=?, tot_cred=?, dept_name=?, dep_id=? WHERE ID=?");
-        $stmt->execute([
-            $_POST['first_name'],
-            $_POST['middle_name'],
-            $_POST['last_name'],
-            $_POST['tot_cred'],
-            $_POST['dept_name'],
-            $_POST['dep_id'], // Added dep_id to the update query
-            $_POST['ID']
-        ]);
+        $stmt->execute([$first_name, $middle_name, $last_name, $tot_cred, $dept_name, $dep_id, $_POST['ID']]);
     } else {
         // Add new student
         $stmt = $pdo->prepare("INSERT INTO student (first_name, middle_name, last_name, tot_cred, dept_name, dep_id) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([
-            $_POST['first_name'],
-            $_POST['middle_name'],
-            $_POST['last_name'],
-            $_POST['tot_cred'],
-            $_POST['dept_name'],
-            $_POST['dep_id'] // Added dep_id to the insert query
-        ]);
+        $stmt->execute([$first_name, $middle_name, $last_name, $tot_cred, $dept_name, $dep_id]);
     }
     // Redirect back to the same page after form submission
     header("Location: student.php");
     exit();
 }
-
 // Handle deletion of a student
 if (isset($_GET['delete'])) {
     $stmt = $pdo->prepare("DELETE FROM student WHERE ID = ?");
@@ -216,7 +207,7 @@ $departments = $deptStmt->fetchAll(PDO::FETCH_ASSOC);
         <input type="text" id="last_name" name="last_name" value="<?php echo $studentToEdit ? htmlspecialchars($studentToEdit['last_name']) : ''; ?>" required>
 
         <label for="tot_cred">Total Credits:</label>
-        <input type="number" id="tot_cred" name="tot_cred" value="<?php echo $studentToEdit ? htmlspecialchars($studentToEdit['tot_cred']) : ''; ?>" required>
+        <input type="number" id="tot_cred" name="tot_cred" value="<?php echo $studentToEdit ? htmlspecialchars($studentToEdit['tot_cred']) : ''; ?>" >
 
         <label for="dept_name">Department Name:</label>
         <select id="dept_name" name="dept_name" onchange="updateDepId()">
