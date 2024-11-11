@@ -1,7 +1,7 @@
 <?php
 // Database connection
 $host = 'localhost'; // Database host
-$db = 'university_db'; // Database name
+$db = 'university_db3'; // Database name
 $user = 'root'; // Database username
 $pass = ''; // Database password
 
@@ -45,6 +45,10 @@ if (isset($_GET['delete'])) {
 $stmt = $pdo->query("SELECT * FROM department");
 $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Fetch all buildings from the classroom table (ensure your classroom table has a 'building' column)
+$stmt = $pdo->query("SELECT DISTINCT building FROM classroom"); // Changed to classroom table
+$buildings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Check if a department is being edited
 $departmentToEdit = null;
 if (isset($_GET['edit'])) {
@@ -87,7 +91,7 @@ if (isset($_GET['edit'])) {
             display: block;
             margin-bottom: 5px;
         }
-        input, button {
+        input, select, button {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -131,11 +135,20 @@ if (isset($_GET['edit'])) {
             <input type="hidden" name="original_dept_name" value="<?php echo htmlspecialchars($departmentToEdit['dept_name']); ?>">
         <?php endif; ?>
 
+        <!-- Dropdown for building -->
+        <label for="building">Building:</label>
+        <select id="building" name="building" required>
+            <option value="">Select Building</option>
+            <?php foreach ($buildings as $buildingOption): ?>
+                <option value="<?php echo htmlspecialchars($buildingOption['building']); ?>" 
+                        <?php echo $departmentToEdit && $departmentToEdit['building'] == $buildingOption['building'] ? 'selected' : ''; ?> >
+                    <?php echo htmlspecialchars($buildingOption['building']); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+
         <label for="dept_name">Department Name:</label>
         <input type="text" id="dept_name" name="dept_name" value="<?php echo $departmentToEdit ? htmlspecialchars($departmentToEdit['dept_name']) : ''; ?>" required>
-
-        <label for="building">Building:</label>
-        <input type="text" id="building" name="building" value="<?php echo $departmentToEdit ? htmlspecialchars($departmentToEdit['building']) : ''; ?>">
 
         <label for="budget">Budget:</label>
         <input type="number" id="budget" name="budget" value="<?php echo $departmentToEdit ? htmlspecialchars($departmentToEdit['budget']) : ''; ?>">

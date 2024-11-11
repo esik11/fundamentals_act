@@ -115,26 +115,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>202210001</td>
-                <td>Doe</td>
-                <td>John</td>
-                <td>A.</td>
-                <td>2022</td>
-                <td>
-                    <button onclick="toggleRecords('records1')">Check Records</button>
-                </td>
-            </tr>
-            <tr>
-                <td>202310002</td>
-                <td>Smith</td>
-                <td>Jane</td>
-                <td>B.</td>
-                <td>2023</td>
-                <td>
-                    <button onclick="toggleRecords('records2')">Check Records</button>
-                </td>
-            </tr>
+          
         </tbody>
     </table>
 
